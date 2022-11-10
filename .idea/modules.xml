@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/marvels-ftc.iml" filepath="$PROJECT_DIR$/.idea/modules/marvels-ftc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.main.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/marvels-ftc.FtcRobotController.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.iml" filepath="$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.main.iml" filepath="$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/TeamCode/marvels-ftc.TeamCode.unitTest.iml" />
+    </modules>
+  </component>
+</project>
