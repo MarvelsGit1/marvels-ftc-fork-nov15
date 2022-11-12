@@ -25,8 +25,8 @@ public class RedLeftAutonomous extends LinearOpMode {
 
     //VARIABLES
     public static int numCones = 5;
-    public static int coneOffset = 150;
-    public static int coneTop = 700;
+    public static int coneOffset = 140;
+    public static int coneTop = 500;
     public static int coneHeight;
 
     //CAMERA
@@ -53,7 +53,7 @@ public class RedLeftAutonomous extends LinearOpMode {
         robot.telemetry = this.telemetry;
         robot.parent = this;
 
-        robot.camservo.setPosition(0.15);
+        robot.camservo.setPosition(0.07);
         robot.shoulder.setPosition(0.6);
         robot.grabber.setPosition(0.0);
 
@@ -64,46 +64,49 @@ public class RedLeftAutonomous extends LinearOpMode {
         //PRELOAD SCORE
         TrajectorySequence conePreload = drive.trajectorySequenceBuilder(startPose)
                 .lineTo(new Vector2d(-14, -65)) //backup from starting position
-                .addTemporalMarker(0, () -> robot.liftArm(3450, 1)) //raise arm
                 .strafeTo(new Vector2d(-14, -13)) //go to middle of field
-                .lineTo(new Vector2d(-18.25, -13)) //adjust a bit forward to score preload
+                .lineTo(new Vector2d(-18, -13)) //adjust a bit forward to score preload
+                //5 seconds
+                .waitSeconds(2.5)
+                .addTemporalMarker(0, () -> robot.liftArm(3450, 1)) //raise arm
                 .addTemporalMarker(4, () -> robot.shoulder.setPosition(0.95)) //stretch arm out
-                .addTemporalMarker(6, () -> robot.grabber.setPosition(1.0)) //release cone
-                .addTemporalMarker(7, () -> robot.shoulder.setPosition(0.6)) //bring arm back
-                .addTemporalMarker(8, () -> robot.liftArm(coneTop, 1)) //drop arm to top of cone stack
+                .addTemporalMarker(5.5, () -> robot.grabber.setPosition(1.0)) //release cone
+                .addTemporalMarker(6.5, () -> robot.shoulder.setPosition(0.6)) //bring arm back
+                .addTemporalMarker(7, () -> robot.liftArm(coneTop, 1)) //drop arm to top of cone stack
                 .build();
 
         //GOTO CONE STACK + PINCH CONE
         TrajectorySequence coneStack = drive.trajectorySequenceBuilder(conePreload.end())
-                .lineTo(new Vector2d(-60, -13)) //cone stack pos
-                .addTemporalMarker(4, () -> robot.grabber.setPosition(0.0)) //pinch cone
+                .lineTo(new Vector2d(-64, -13.25)) //cone stack pos
+                //2.5 seconds
+                .waitSeconds(1)
+                .addTemporalMarker(2.5, () -> robot.grabber.setPosition(0.0)) //pinch cone
                 .build();
 
         //BACK UP FROM CONE STACK AND SCORE
         TrajectorySequence coneScore = drive.trajectorySequenceBuilder(coneStack.end())
+                .lineTo(new Vector2d(-18, -13)) //goto score pos
+                .waitSeconds(10)
                 .addTemporalMarker(0, () -> robot.liftArm(3450, 1)) //raise arm
-                .lineTo(new Vector2d(-18.25, -13)) //goto score pos
-                .addTemporalMarker(2, () -> robot.shoulder.setPosition(0.95)) //stretch arm out
-                .addTemporalMarker(6, () -> robot.grabber.setPosition(1.0)) //release cone
-                .addTemporalMarker(7, () -> robot.shoulder.setPosition(0.6)) //bring arm back
+                .addTemporalMarker(4, () -> robot.shoulder.setPosition(0.95)) //stretch arm out
+                .addTemporalMarker(5.5, () -> robot.grabber.setPosition(1.0)) //release cone
+                .addTemporalMarker(6.5, () -> robot.shoulder.setPosition(0.6)) //bring arm back
+                .addTemporalMarker(7, () -> robot.liftArm(coneTop, 1)) //drop arm to top of cone stack
                 .build();
 
-        //PARKING 1
+        //PARKING LEFT
         TrajectorySequence parkingOne = drive.trajectorySequenceBuilder(coneScore.end())
-                .lineTo(new Vector2d(-14, -65))
-                .strafeTo(new Vector2d(-14, -13))
+                .lineTo(new Vector2d(-64, -13.25))
                 .build();
 
-        //PARKING 2
+        //PARKING MIDDLE
         TrajectorySequence parkingTwo = drive.trajectorySequenceBuilder(coneScore.end())
-                .lineTo(new Vector2d(-14, -65))
-                .strafeTo(new Vector2d(-14, -13))
+                .lineTo(new Vector2d(-40, -13.25))
                 .build();
 
-        //PARKING 3
+        //PARKING RIGHT
         TrajectorySequence parkingThree = drive.trajectorySequenceBuilder(coneScore.end())
-                .lineTo(new Vector2d(-14, -65))
-                .strafeTo(new Vector2d(-14, -13))
+                .lineTo(new Vector2d(-14, -13))
                 .build();
 
         //CAMERA INITIALIZATION ----------------------------------------------------------------
@@ -117,7 +120,7 @@ public class RedLeftAutonomous extends LinearOpMode {
             @Override
             public void onOpened()
             {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming(800, 600, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -133,11 +136,9 @@ public class RedLeftAutonomous extends LinearOpMode {
         while (!isStarted() && !isStopRequested())
         {
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-
             if(currentDetections.size() != 0)
             {
                 boolean tagFound = false;
-
                 for(AprilTagDetection tag : currentDetections)
                 {
                     if(tag.id == LEFT || tag.id == MIDDLE || tag.id == RIGHT)
@@ -147,7 +148,6 @@ public class RedLeftAutonomous extends LinearOpMode {
                         break;
                     }
                 }
-
                 if(tagFound)
                 {
                     telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
@@ -167,7 +167,6 @@ public class RedLeftAutonomous extends LinearOpMode {
                         tagToTelemetry(tagOfInterest);
                     }
                 }
-
             }
             else
             {
@@ -182,7 +181,6 @@ public class RedLeftAutonomous extends LinearOpMode {
                     telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                     tagToTelemetry(tagOfInterest);
                 }
-
             }
 
             telemetry.update();
@@ -190,18 +188,29 @@ public class RedLeftAutonomous extends LinearOpMode {
         }
 
         //EXECUTE SCRIPT ------------------------------------------------------------------
+        //PRELOAD
         drive.followTrajectorySequence(conePreload);
+//        drive.followTrajectorySequence(coneStack);
+//        drive.followTrajectorySequence(coneScore);
 
         //LOOP CONE PICKUP
-        for (int i = 0; i < numCones; i++) {
-            coneHeight = coneTop - i*coneOffset;
-            robot.liftArm(coneHeight, 1);
-            drive.followTrajectorySequenceAsync(coneStack);
-            drive.followTrajectorySequence(coneScore);
-        }
+//        for (int i = 0; i < numCones; i++) {
+//            coneHeight = coneTop - i*coneOffset;
+//            robot.liftArm(coneHeight, 1);
+//            drive.followTrajectorySequence(coneStack);
+//            drive.followTrajectorySequence(coneScore);
+//        }
 
         //PARK
-        sleep(15000);
+        if(tagOfInterest == null || tagOfInterest.id == LEFT){
+             drive.followTrajectorySequence(coneStack);
+             //drive.followTrajectorySequence(parkingOne);
+        }else if(tagOfInterest.id == MIDDLE){
+            drive.followTrajectorySequence(parkingTwo);
+        }else{
+            //already in right spot
+            //drive.followTrajectorySequence(parkingThree);
+        }
     }
 
     @SuppressLint("DefaultLocale")
