@@ -30,4 +30,4 @@
 -dontwarn com.google.gson.**
 
 # Misc
--dontnote **
+# -dontnote **
