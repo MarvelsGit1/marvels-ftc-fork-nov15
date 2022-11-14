@@ -3,10 +3,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import static java.lang.Thread.sleep;
-
-import android.graphics.RenderNode;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,14 +10,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
-
 public class BaseRobotMethods {
 
-    //VARIABLES -------------------------------------------------------------------
+    //VARIABLES ------------------------------------------------------------------------------------
     private ElapsedTime     runtime = new ElapsedTime();
 
     public DcMotorEx arm;
@@ -39,13 +30,15 @@ public class BaseRobotMethods {
 
     private int timeout = 7; //seconds until command abort
 
-    //HARDWARE SETUP ----------------------------------------------------------------
+    //HARDWARE SETUP -------------------------------------------------------------------------------
     public BaseRobotMethods(HardwareMap hardwareMap) { //init all hardware here
         frontleft = hardwareMap.get(DcMotorEx.class, "frontleft");
         frontright = hardwareMap.get(DcMotorEx.class, "frontright");
         backleft = hardwareMap.get(DcMotorEx.class, "backleft");
         backright = hardwareMap.get(DcMotorEx.class, "backright");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
+
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         frontleft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontright.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -58,7 +51,7 @@ public class BaseRobotMethods {
         grabber = hardwareMap.get(Servo.class,"grabber");
     }
 
-    //MOTOR COMMANDS -----------------------------------------------------------
+    //MOTOR COMMANDS   -----------------------------------------------------------------------------
     public void setMotorMode(DcMotor.RunMode mode){
         frontleft.setMode(mode);
         frontright.setMode(mode);
@@ -106,7 +99,7 @@ public class BaseRobotMethods {
         backright.setPower(0);
     }
 
-    //ARM COMMANDS ------------------------------------------------------------------
+    //ARM COMMANDS ---------------------------------------------------------------------------------
     public void liftArm(int distance, double power){
         arm.setTargetPosition(distance);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);

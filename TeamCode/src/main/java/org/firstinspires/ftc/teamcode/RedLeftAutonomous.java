@@ -23,10 +23,11 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 @Autonomous(group = "Red Autos")
 public class RedLeftAutonomous extends LinearOpMode {
 
-    //VARIABLES
+    //VARIABLES ------------------------------------------------------------------------------------
+    public static int poleHeight = 3465; //3475 prior
     public static int numCones = 5;
     public static int coneOffset = 140;
-    public static int coneTop = 500;
+    public static int coneTop = 550; //350 prior
     public static int coneHeight;
 
     //CAMERA
@@ -47,7 +48,7 @@ public class RedLeftAutonomous extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException{
-        //HARDWARE INITIALIZATION ---------------------------------------------------------------
+        //HARDWARE INITIALIZATION ------------------------------------------------------------------
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         BaseRobotMethods robot = new BaseRobotMethods(hardwareMap);
         robot.telemetry = this.telemetry;
@@ -57,18 +58,18 @@ public class RedLeftAutonomous extends LinearOpMode {
         robot.shoulder.setPosition(0.6);
         robot.grabber.setPosition(0.0);
 
-        //ROAD RUNNER TRAJECTORIES -------------------------------------------------------------
+        //ROAD RUNNER TRAJECTORIES -----------------------------------------------------------------
         Pose2d startPose = new Pose2d(-33, -65, Math.toRadians(180)); //starting position
         drive.setPoseEstimate(startPose);
 
         //PRELOAD SCORE
         TrajectorySequence conePreload = drive.trajectorySequenceBuilder(startPose)
                 .lineTo(new Vector2d(-14, -65)) //backup from starting position
-                .strafeTo(new Vector2d(-14, -13)) //go to middle of field
-                .lineTo(new Vector2d(-18, -13)) //adjust a bit forward to score preload
+                .strafeTo(new Vector2d(-14, -16.5)) //go to middle of field
+                .lineTo(new Vector2d(-16.75, -16.25)) //adjust a bit forward to score preload
                 //5 seconds
                 .waitSeconds(2.5)
-                .addTemporalMarker(0, () -> robot.liftArm(3450, 1)) //raise arm
+                .addTemporalMarker(0, () -> robot.liftArm(poleHeight, 1)) //raise arm
                 .addTemporalMarker(4, () -> robot.shoulder.setPosition(0.95)) //stretch arm out
                 .addTemporalMarker(5.5, () -> robot.grabber.setPosition(1.0)) //release cone
                 .addTemporalMarker(6.5, () -> robot.shoulder.setPosition(0.6)) //bring arm back
@@ -77,7 +78,7 @@ public class RedLeftAutonomous extends LinearOpMode {
 
         //GOTO CONE STACK + PINCH CONE
         TrajectorySequence coneStack = drive.trajectorySequenceBuilder(conePreload.end())
-                .lineTo(new Vector2d(-64, -13.25)) //cone stack pos
+                .lineTo(new Vector2d(-65, -14.5)) //cone stack pos
                 //2.5 seconds
                 .waitSeconds(1)
                 .addTemporalMarker(2.5, () -> robot.grabber.setPosition(0.0)) //pinch cone
@@ -85,9 +86,9 @@ public class RedLeftAutonomous extends LinearOpMode {
 
         //BACK UP FROM CONE STACK AND SCORE
         TrajectorySequence coneScore = drive.trajectorySequenceBuilder(coneStack.end())
-                .lineTo(new Vector2d(-18, -13)) //goto score pos
-                .waitSeconds(10)
-                .addTemporalMarker(0, () -> robot.liftArm(3450, 1)) //raise arm
+                .lineTo(new Vector2d(-16.75, -16.5)) //goto score pos
+                .waitSeconds(5)
+                .addTemporalMarker(0, () -> robot.liftArm(poleHeight, 1)) //raise arm
                 .addTemporalMarker(4, () -> robot.shoulder.setPosition(0.95)) //stretch arm out
                 .addTemporalMarker(5.5, () -> robot.grabber.setPosition(1.0)) //release cone
                 .addTemporalMarker(6.5, () -> robot.shoulder.setPosition(0.6)) //bring arm back
@@ -96,20 +97,20 @@ public class RedLeftAutonomous extends LinearOpMode {
 
         //PARKING LEFT
         TrajectorySequence parkingOne = drive.trajectorySequenceBuilder(coneScore.end())
-                .lineTo(new Vector2d(-64, -13.25))
+                .lineTo(new Vector2d(-62, -14.5))
                 .build();
 
         //PARKING MIDDLE
         TrajectorySequence parkingTwo = drive.trajectorySequenceBuilder(coneScore.end())
-                .lineTo(new Vector2d(-40, -13.25))
+                .lineTo(new Vector2d(-40, -14.5))
                 .build();
 
         //PARKING RIGHT
         TrajectorySequence parkingThree = drive.trajectorySequenceBuilder(coneScore.end())
-                .lineTo(new Vector2d(-14, -13))
+                .lineTo(new Vector2d(-14, -14.5))
                 .build();
 
-        //CAMERA INITIALIZATION ----------------------------------------------------------------
+        //CAMERA INITIALIZATION --------------------------------------------------------------------
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
@@ -132,7 +133,7 @@ public class RedLeftAutonomous extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(50);
 
-        //WHILE WAIT FOR START FIND APRIL TAG
+        //WHILE WAIT FOR START FIND APRIL TAG ------------------------------------------------------
         while (!isStarted() && !isStopRequested())
         {
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
@@ -187,11 +188,11 @@ public class RedLeftAutonomous extends LinearOpMode {
             sleep(20);
         }
 
-        //EXECUTE SCRIPT ------------------------------------------------------------------
+        //EXECUTE SCRIPT ---------------------------------------------------------------------------
         //PRELOAD
         drive.followTrajectorySequence(conePreload);
-//        drive.followTrajectorySequence(coneStack);
-//        drive.followTrajectorySequence(coneScore);
+        drive.followTrajectorySequence(coneStack);
+        drive.followTrajectorySequence(coneScore);
 
         //LOOP CONE PICKUP
 //        for (int i = 0; i < numCones; i++) {
@@ -202,14 +203,14 @@ public class RedLeftAutonomous extends LinearOpMode {
 //        }
 
         //PARK
-        if(tagOfInterest == null || tagOfInterest.id == LEFT){
-             drive.followTrajectorySequence(coneStack);
-             //drive.followTrajectorySequence(parkingOne);
+        if(tagOfInterest == null || tagOfInterest.id == RIGHT){
+             //drive.followTrajectorySequence(coneStack);
+            drive.followTrajectorySequence(parkingThree);
         }else if(tagOfInterest.id == MIDDLE){
             drive.followTrajectorySequence(parkingTwo);
         }else{
             //already in right spot
-            //drive.followTrajectorySequence(parkingThree);
+            drive.followTrajectorySequence(parkingOne);
         }
     }
 
